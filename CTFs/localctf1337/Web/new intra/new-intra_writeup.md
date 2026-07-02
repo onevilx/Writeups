@@ -79,7 +79,7 @@ def update_profile(user_id):
     # Mass Assignment flaw: Blindly accepting and setting the password in the session
     data = request.json
     if 'password' in data:
-        session['bocal_pw'] = data['password'] # <-----
+        session['bocal_pw'] = data['password'] # <---
 ```
 
 The intentional flaw here is twofold. First, I added a check to stop players from griefing each other, but explicitly allowed them to modify the built-in accounts (IDs 1 through 6). Second, the API blindly accepts any password sent in the JSON payload and slaps it directly into the session cookie, rather than updating a database. This is exactly why injecting `"password": "test"` bypasses the intended logic and grants access!
