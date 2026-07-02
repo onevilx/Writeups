@@ -5,21 +5,21 @@
 - **Difficulty:** Easy
 - **Vulnerability:** Server-Side Template Injection Smarty Template (SSTI), WAF Bypass.
 
-<img src="../images/web1/chall.png" alt="returndata" width="500">
+<img src="../../images/web1/chall.png" alt="returndata" width="500">
 
 ## Description
 In this challenge, we are presented with a web application that takes user input and previews it using the Smarty templating engine. The application has implemented a custom Web Application Firewall (WAF) to prevent the execution of arbitrary PHP code and reading sensitive files.
 
-<img src="../images/web1/blog.png" alt="returndata" width="500">
+<img src="../../images/web1/blog.png" alt="returndata" width="500">
 
 ## Challenge Analysis
 First thing first is the interaction with the challenge surface, i am seeing a blog where i can post anything i type, so first what comes in my mind is the ssti. so i tested {{7*7}} then it returned to me 49. 
 
-<img src="../images/web1/returndata.png" alt="returndata" width="500">
+<img src="../../images/web1/returndata.png" alt="returndata" width="500">
 
 after that i checked which type is the server is it python for Jinja2 or Mako, but actually i found it is PHP!
 
-<img src="../images/web1//typeserverchall1.png" alt="returndata" width="500">
+<img src="../../images/web1//typeserverchall1.png" alt="returndata" width="500">
 
 and besides after that i went to the source code to see which type of template is it. i found Smarty! The application accepts user input through the `text` GET parameter and checks it against a blocklist before passing it to the Smarty `fetch` function and also the WAF blocklists.
 
@@ -83,7 +83,7 @@ Once submitted, the WAF is bypassed, Smarty evaluates the injected string manipu
 leet{sm4r7y_7pl_1nj3c710n_n0_w4f_c4n_s70p_m3}
 ```
 
-<img src="../images/web1/payload.png" alt="returndata" width="500">
+<img src="../../images/web1/payload.png" alt="returndata" width="500">
 
 ## Resources
 a helpful articles about SSTI: 
