@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="card" style="margin-top: 50px;">
+    <h3>Edit informations (ID: <span id="current-user-id">{{ user.id }}</span>)</h3>
+    <div id="profile-msg"></div>
+    
+    <form id="profile-form">
+        <label style="color: var(--text-muted); font-size: 14px; font-weight: 600;">Avatar URL:</label>
+        <input type="text" id="avatar" value="{{ user.avatar }}">
+        
+        <label style="color: var(--text-muted); font-size: 14px; font-weight: 600;">Bio:</label>
+        <textarea id="bio" style="height: 120px;">{{ user.bio }}</textarea>
+        
+        <button type="submit">Save Changes</button>
+    </form>
+</div>
+
+<script>
+document.getElementById('profile-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const userId = document.getElementById('current-user-id').innerText;
+    
+    const payload = {
+        avatar: document.getElementById('avatar').value,
+        bio: document.getElementById('bio').value
+    };
+    
+    try {
+        const res = await fetch('/api/profile/' + userId, {
+            method: 'PUT',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(payload)
+        });
+        
+        const data = await res.json();
+        const msgDiv = document.getElementById('profile-msg');
+        
+        if (data.success) {
+            msgDiv.className = 'success';
+            msgDiv.innerText = 'Informations updated successfully.';
+            setTimeout(() => { window.location.reload(); }, 1000);
+        } else {
+            msgDiv.className = 'error';
+            msgDiv.innerText = data.error || 'Failed to update';
+        }
+    } catch(err) {
+        console.error(err);
+    }
+});
+</script>
+{% endblock %}

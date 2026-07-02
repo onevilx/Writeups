@@ -63,6 +63,26 @@ The flag was:
 ```text
 leet{h4ck3d_b0c4l_v14_1d0r_m4ss_4ss1gn}
 ```
+## Post CTF
+Since this was a blackbox challenge during the CTF, players didn't have access to the source code. However, as the creator of this challenge, I've decided to open-source the backend in this repository [New intra](<new intra>) so you can spin it up locally and see exactly why the exploit works!
+
+If we look at `app.py`, here is the exact code responsible for the vulnerability in the profile update API:
+
+```python
+@app.route('/api/profile/<user_id>', methods=['PUT'])
+def update_profile(user_id):
+    # IDOR flaw: here It allows modifying your own profile OR any builtin profile (IDs 1-6)
+    builtin_ids = {'1', '2', '3', '4', '5', '6'}
+    if user_id != session['user_id'] and user_id not in builtin_ids:
+        return jsonify({"error": "You can only modify your own profile"}), 403
+    
+    # Mass Assignment flaw: Blindly accepting and setting the password in the session
+    data = request.json
+    if 'password' in data:
+        session['bocal_pw'] = data['password'] # <-----
+```
+
+The intentional flaw here is twofold. First, I added a check to stop players from griefing each other, but explicitly allowed them to modify the built-in accounts (IDs 1 through 6). Second, the API blindly accepts any password sent in the JSON payload and slaps it directly into the session cookie, rather than updating a database. This is exactly why injecting `"password": "test"` bypasses the intended logic and grants access!
 
 ## Resources
 Helpful articles to learn more about IDOR and Mass Assignment:

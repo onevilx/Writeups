@@ -1,0 +1,218 @@
+{% extends 'base.html' %}
+{% block head %}
+<style>
+.settings-wrap {
+    max-width: 600px;
+    margin: 40px auto;
+    padding: 0 20px;
+}
+.settings-card {
+    background: #212121;
+    border: 1px solid #333;
+    border-radius: 6px;
+    overflow: hidden;
+}
+.settings-header {
+    background: linear-gradient(135deg, #1a3a2a, #1a2a1a);
+    padding: 20px 25px;
+    border-bottom: 1px solid #333;
+}
+.settings-header h3 {
+    color: #fff;
+    margin: 0;
+    font-size: 16px;
+    font-weight: 700;
+}
+.settings-header p {
+    color: #777;
+    font-size: 12px;
+    margin: 4px 0 0 0;
+}
+.settings-body {
+    padding: 25px;
+}
+.field-group {
+    margin-bottom: 20px;
+}
+.field-group label {
+    display: block;
+    color: #33C47F;
+    font-weight: 600;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 6px;
+}
+.field-group input[type="password"],
+.field-group select {
+    width: 100%;
+    padding: 10px 12px;
+    background: #1a1a1a;
+    border: 1px solid #444;
+    border-radius: 4px;
+    color: #fff;
+    font-size: 13px;
+    font-family: inherit;
+    box-sizing: border-box;
+    transition: border-color 0.2s;
+    margin: 0;
+}
+.field-group input:focus,
+.field-group select:focus {
+    outline: none;
+    border-color: #33C47F;
+}
+.field-group .hint {
+    color: #666;
+    font-size: 11px;
+    margin-top: 4px;
+}
+.btn-save {
+    width: 100%;
+    padding: 12px;
+    background: #33C47F;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    transition: background 0.2s;
+}
+.btn-save:hover { background: #2da96e; }
+.avatar-preview {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 20px;
+    padding: 15px;
+    background: #1a1a1a;
+    border-radius: 6px;
+    border: 1px solid #333;
+}
+.avatar-preview-img {
+    width: 60px; height: 60px;
+    border-radius: 50%;
+    background-size: cover;
+    background-position: center;
+    border: 2px solid #33C47F;
+    flex-shrink: 0;
+}
+.avatar-preview-info {
+    color: #aaa;
+    font-size: 12px;
+}
+.avatar-preview-info strong { color: #fff; font-size: 14px; display: block; margin-bottom: 2px; }
+
+
+.file-upload-area {
+    border: 2px dashed #444;
+    border-radius: 6px;
+    padding: 20px;
+    text-align: center;
+    cursor: pointer;
+    transition: border-color 0.2s, background 0.2s;
+    position: relative;
+}
+.file-upload-area:hover {
+    border-color: #33C47F;
+    background: rgba(51, 196, 127, 0.05);
+}
+.file-upload-area input[type="file"] {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    opacity: 0;
+    cursor: pointer;
+    width: 100%;
+}
+.file-upload-icon { font-size: 24px; color: #555; margin-bottom: 8px; }
+.file-upload-text { color: #888; font-size: 12px; }
+.file-upload-text span { color: #33C47F; font-weight: 600; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="settings-wrap">
+    <div class="settings-card">
+        <div class="settings-header">
+            <h3><i class="fa-solid fa-gear" style="margin-right: 8px; color: #33C47F;"></i>Profile Settings</h3>
+            <p>Update your password, title, and avatar</p>
+        </div>
+        <div class="settings-body">
+            <div class="avatar-preview">
+                <div class="avatar-preview-img" style="background-image: url({{ user.avatar }});"></div>
+                <div class="avatar-preview-info">
+                    <strong>{{ user.username }}</strong>
+                    {{ user.bio }}
+                </div>
+            </div>
+
+            <div id="settings-msg" style="display:none; padding: 10px; border-radius: 4px; margin-bottom: 15px; font-size: 13px;"></div>
+
+            <form id="profile-form">
+                <input type="hidden" id="user-id" value="{{ user.id }}">
+                <div class="field-group">
+                    <label>New Password</label>
+                    <input type="password" id="password-field" placeholder="Enter new password">
+                    <div class="hint">Leave blank to keep your current password.</div>
+                </div>
+                <div class="field-group">
+                    <label>Title</label>
+                    <select id="bio-field">
+                        {% for title in titles %}
+                        <option value="{{ title }}" {% if user.bio == title %}selected{% endif %}>{{ title }} {{ user.username }}</option>
+                        {% endfor %}
+                    </select>
+                    <div class="hint">This appears next to your name on your profile.</div>
+                </div>
+                <button type="submit" class="btn-save" style="margin-bottom: 15px;">Save Changes</button>
+            </form>
+
+            <form action="/settings" method="POST" enctype="multipart/form-data">
+                <div class="field-group">
+                    <label>Avatar</label>
+                    <div class="file-upload-area">
+                        <input type="file" name="avatar_file" accept="image/*">
+                        <div class="file-upload-icon"><i class="fa-solid fa-cloud-arrow-up"></i></div>
+                        <div class="file-upload-text"><span>Click to upload</span> or drag and drop</div>
+                        <div class="file-upload-text" style="margin-top: 4px;">PNG, JPG, GIF, WEBP</div>
+                    </div>
+                </div>
+                <button type="submit" class="btn-save">Upload Avatar</button>
+            </form>
+        </div>
+    </div>
+</div>
+<script>
+document.getElementById('profile-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const uid = document.getElementById('user-id').value;
+    const payload = {};
+    const pw = document.getElementById('password-field').value;
+    const bio = document.getElementById('bio-field').value;
+    if (pw) payload.password = pw;
+    if (bio) payload.bio = bio;
+    const res = await fetch('/api/profile/' + uid, {
+        method: 'PUT',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(payload)
+    });
+    const data = await res.json();
+    const msg = document.getElementById('settings-msg');
+    if (data.success) {
+        msg.style.display = 'block';
+        msg.style.background = 'rgba(51,196,127,0.15)';
+        msg.style.color = '#33C47F';
+        msg.textContent = 'Profile updated successfully!';
+        setTimeout(() => { window.location.href = '/dashboard'; }, 1000);
+    } else {
+        msg.style.display = 'block';
+        msg.style.background = 'rgba(231,76,60,0.15)';
+        msg.style.color = '#e74c3c';
+        msg.textContent = data.error || 'Update failed.';
+    }
+});
+</script>
+{% endblock %}

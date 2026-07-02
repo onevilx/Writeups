@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>1337 Intra</title>
+    <link rel="stylesheet" media="all" href="https://profile.intra.42.fr/assets/application-48272d631ec1dfdb6f7e9449b7c53fa7b83db3e9e3ab5b222a76408a64ee09e3.css" />
+    <link rel="icon" href="/static/1337logo.png" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            background-color: #1a1a1a;
+            color: #e0e0e0;
+            font-family: 'Open Sans', sans-serif;
+            overflow-x: hidden;
+        }
+
+        
+        .top-navbar {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            height: 52px;
+            background-color: #15181c;
+            display: flex;
+            align-items: center;
+            z-index: 1000;
+            border-bottom: 1px solid #2a2d32;
+        }
+        .top-navbar-logo {
+            width: 65px;
+            height: 52px;
+            background-color: #1f2227;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-shrink: 0;
+            padding: 5px;
+        }
+        .top-navbar-logo img {
+            width: 50px;
+            height: auto;
+            object-fit: contain;
+        }
+        .top-navbar-search {
+            display: flex;
+            align-items: center;
+            margin-left: 15px;
+            flex: 1;
+        }
+        .top-navbar-search .fa-magnifying-glass {
+            color: #777;
+            margin-right: 8px;
+            font-size: 14px;
+        }
+        .top-navbar-search input {
+            background: transparent;
+            border: none;
+            color: #aaa;
+            font-size: 14px;
+            outline: none;
+            width: 300px;
+            font-family: inherit;
+        }
+        .top-navbar-search input::placeholder { color: #555; }
+        .top-navbar-right {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-right: 20px;
+        }
+        .top-navbar-right .notif-bell {
+            color: #f5bc39;
+            font-size: 16px;
+            position: relative;
+            cursor: pointer;
+        }
+        .top-navbar-right .notif-count {
+            position: absolute;
+            top: -6px; right: -8px;
+            background: #e74c3c;
+            color: #fff;
+            font-size: 9px;
+            font-weight: bold;
+            border-radius: 50%;
+            width: 15px; height: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .top-navbar-right .username-text {
+            color: #fff;
+            font-weight: 600;
+            font-size: 13px;
+        }
+        .top-navbar-right .avatar-circle {
+            width: 28px; height: 28px;
+            border-radius: 50%;
+            background-size: cover;
+            background-position: center;
+            border: 1px solid #444;
+            cursor: pointer;
+        }
+        .top-navbar-right .problem-btn {
+            background-color: #a83838;
+            color: #fff;
+            padding: 4px 10px;
+            border-radius: 2px;
+            text-decoration: none;
+            font-size: 12px;
+            font-weight: 600;
+            border: none;
+        }
+        .top-navbar-right .problem-btn:hover { background-color: #c0392b; }
+
+        
+        .user-dropdown-wrapper {
+            position: relative;
+        }
+        .user-dropdown {
+            display: none;
+            position: absolute;
+            top: 36px;
+            right: 0;
+            background: #25272c;
+            border: 1px solid #3a3d42;
+            border-radius: 4px;
+            min-width: 160px;
+            z-index: 1001;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+        }
+        .user-dropdown.show { display: block; }
+        .user-dropdown a {
+            display: block;
+            padding: 10px 15px;
+            color: #ccc;
+            text-decoration: none;
+            font-size: 13px;
+            border-bottom: 1px solid #333;
+        }
+        .user-dropdown a:last-child { border-bottom: none; }
+        .user-dropdown a:hover { background: #2f3136; color: #fff; }
+        .user-dropdown a.logout-link { font-weight: bold; color: #fff; }
+        .user-dropdown-trigger {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        
+        .left-sidebar {
+            position: fixed;
+            top: 52px; left: 0; bottom: 0;
+            width: 60px;
+            background-color: #1f2227;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding-top: 10px;
+            z-index: 999;
+        }
+        .sidebar-link {
+            width: 40px; height: 40px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 8px;
+            color: #777;
+            text-decoration: none;
+            font-size: 18px;
+            border-radius: 4px;
+            transition: color 0.2s, background 0.2s;
+        }
+        .sidebar-link:hover { color: #33C47F; background: rgba(255,255,255,0.05); }
+        .sidebar-link.active { color: #33C47F; }
+
+        
+        .main-content {
+            margin-left: 60px;
+            margin-top: 52px;
+            min-height: calc(100vh - 52px);
+            background-color: #1a1a1a;
+        }
+
+        
+        .boxed {
+            background-color: #212121;
+            border: 1px solid #333;
+            border-radius: 2px;
+        }
+        .profile-title {
+            border-bottom: 1px solid #333;
+            color: #fff;
+            font-size: 14px;
+            text-transform: uppercase;
+            padding: 12px 15px;
+            margin: 0;
+        }
+    </style>
+    {% block head %}{% endblock %}
+</head>
+<body>
+
+    {% if user %}
+    <div class="top-navbar">
+        <div class="top-navbar-logo">
+            <a href="/dashboard"><img alt="1337" src="/static/1337logo.png" /></a>
+        </div>
+        <div class="top-navbar-search">
+            <form action="/dashboard" method="get" style="display: flex; align-items: center;">
+                <i class="fa-solid fa-magnifying-glass"></i>
+                <input type="text" name="query" placeholder="search..." autocomplete="off">
+            </form>
+        </div>
+        <div class="top-navbar-right">
+            <span class="notif-bell">
+                <i class="fa-solid fa-bell"></i>
+                <span class="notif-count">0</span>
+            </span>
+            <div class="user-dropdown-wrapper">
+                <a href="#" class="user-dropdown-trigger" onclick="event.preventDefault(); document.getElementById('userDropdown').classList.toggle('show')">
+                    <span class="username-text">{{ user.username }}</span>
+                    <div class="avatar-circle" style="background-image: url({{ user.avatar }})"></div>
+                </a>
+                <div class="user-dropdown" id="userDropdown">
+                    <a href="/dashboard?query={{ user.username }}"><i class="fa-solid fa-user" style="margin-right: 8px;"></i>View my profile</a>
+                    <a href="/settings"><i class="fa-solid fa-gear" style="margin-right: 8px;"></i>Settings</a>
+                    <a href="/logout" class="logout-link"><i class="fa-solid fa-power-off" style="margin-right: 8px;"></i>Logout</a>
+                </div>
+            </div>
+            <a href="#" class="problem-btn">Have a problem?</a>
+        </div>
+    </div>
+
+    <div class="left-sidebar">
+        <a href="/dashboard" class="sidebar-link active" title="Profile"><i class="fa-solid fa-user"></i></a>
+        <a href="#" class="sidebar-link" title="Projects"><i class="fa-solid fa-diagram-project"></i></a>
+        <a href="#" class="sidebar-link" title="E-learning"><i class="fa-solid fa-play-circle"></i></a>
+        <a href="#" class="sidebar-link" title="Forum"><i class="fa-solid fa-comments"></i></a>
+        <a href="#" class="sidebar-link" title="Companies"><i class="fa-solid fa-briefcase"></i></a>
+        <a href="#" class="sidebar-link" title="Meta"><i class="fa-solid fa-compass"></i></a>
+        <a href="#" class="sidebar-link" title="Shop"><i class="fa-solid fa-cart-shopping"></i></a>
+    </div>
+    {% endif %}
+
+    <div class="main-content" style="{% if not user %}margin-left: 0; margin-top: 0;{% endif %}">
+        {% block content %}{% endblock %}
+    </div>
+
+    <script>
+        
+        document.addEventListener('click', function(e) {
+            var dd = document.getElementById('userDropdown');
+            if (dd && !e.target.closest('.user-dropdown-wrapper')) {
+                dd.classList.remove('show');
+            }
+        });
+    </script>
+</body>
+</html>

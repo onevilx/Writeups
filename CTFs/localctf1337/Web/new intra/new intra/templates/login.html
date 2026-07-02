@@ -1,0 +1,119 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <meta name="robots" content="noindex, nofollow">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+
+    <title>Sign in to Realm for 1337 students</title>
+    <link rel="icon" href="/static/1337logo.png" />
+    <link href="https://auth.42.fr/auth/resources/yyzrk/login/students/css/styles.css?v=1.2" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="https://use.typekit.net/qwf8gat.css" />
+    <style>
+        html, body {
+            min-height: 100vh;
+            height: 100%;
+            margin: 0;
+            background-size: cover !important;
+            background-position: center !important;
+            background-attachment: fixed !important;
+            background-repeat: no-repeat !important;
+        }
+    </style>
+</head>
+
+<body class="">
+<div class="">
+    <div id="kc-header" class="">
+        <div id="kc-header-wrapper"
+             class="">Realm for 1337 students</div>
+    </div>
+    <div class="">
+        <header class="">
+                <h1 id="kc-page-title"></h1>
+      </header>
+      <div id="kc-content">
+        <div id="kc-content-wrapper">
+
+
+    <div id="kc-form">
+      <img id="logo" style="width: 300px; margin-bottom: 20px;" src="/static/1337logo.png" alt="1337 logo"/>
+      
+      <div id="kc-form-wrapper">
+            <div id="login-error" style="color: #ff4b4b; text-align: center; margin-bottom: 10px; font-weight: bold;"></div>
+            <form id="kc-form-login">
+                    <div class="">
+                        <input tabindex="1" id="username" class="" name="username" type="text" autofocus autocomplete="off"
+                               placeholder="Login or email"
+                               aria-invalid="" required
+                        />
+                    </div>
+
+                <div class="">
+                    <input tabindex="2" id="password" class="" name="password" type="password" autocomplete="off"
+                           placeholder="Password"
+                           aria-invalid="" required
+                    />
+                </div>
+
+                <div class=" ">
+                    <div id="kc-form-options">
+                            <div class="checkbox" id="remember-me">
+                                <label>
+                                        <input tabindex="3" id="rememberMe" name="rememberMe" type="checkbox" checked> Remember me
+                                </label>
+                            </div>
+                        </div>
+                  </div>
+
+                  <div id="kc-form-buttons" class="">
+                      <input type="hidden" id="id-hidden-input" name="credentialId" />
+                      <input tabindex="4" class="   " name="login" id="kc-login" type="submit" value="Sign In"/>
+                  </div>
+
+                  <div class="">
+                    <a id="reset-password" tabindex="5" href="/register">New cadet? Register here</a>
+                  </div>
+                            <div class="">
+                                <a id="change-realm" tabindex="5" href="/staff">Sign in as staff</a>
+                            </div>
+                  <div class="">
+                    <a id= "legal" href="/terms" target="_blank">Read our terms and conditions</a>
+                  </div>
+            </form>
+        </div>
+
+
+    </div>
+
+
+
+        </div>
+      </div>
+
+    </div>
+  </div>
+<script>
+document.getElementById('kc-form-login').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const res = await fetch('/api/login', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({
+            username: document.getElementById('username').value,
+            password: document.getElementById('password').value
+        })
+    });
+    const data = await res.json();
+    if (data.success) {
+        window.location.href = '/dashboard';
+    } else {
+        document.getElementById('login-error').innerText = data.error;
+    }
+});
+</script>
+</body>
+</html>

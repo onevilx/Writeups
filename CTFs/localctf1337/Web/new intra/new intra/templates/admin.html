@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="card" style="margin-top: 50px;">
+    {% if error %}
+    <div style="background-color: rgba(255, 75, 75, 0.1); border-left: 4px solid var(--danger-color); padding: 20px; margin-bottom: 20px;">
+        <h4 style="color: var(--danger-color); margin-top: 0;">Forbidden</h4>
+        <p style="color: #fff; margin-bottom: 5px;">{{ error }}</p>
+    </div>
+    {% endif %}
+
+    {% if flag %}
+    <div style="background-color: rgba(0, 186, 188, 0.1); border-left: 4px solid var(--cyan-accent); padding: 20px; margin-bottom: 20px;">
+        <h4 style="color: var(--cyan-accent); margin-top: 0;">Restricted Root Access Granted</h4>
+        <p style="color: #fff; margin-bottom: 15px;">Welcome back, Admin!</p>
+        
+        <div style="background-color: #111; padding: 15px; border-radius: 4px; font-family: monospace; font-size: 16px;">
+            <strong style="color: var(--cyan-accent);">FLAG:</strong> <span style="color: #fff;">{{ flag }}</span>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
