@@ -24,6 +24,8 @@ This comment contains a string of hexadecimal characters, this is the encrypted 
 
 ### 2. The OSINT Step
 here we need to use osint as mention in the description we need to do a little researcher about the author, so that we did we google up about onevilx
+
+
 <img src="../../images/misc2/google-onevilx.png" alt="Challenge Preview" width="500">
 
 so likely in the ctftime will appear his full name:
