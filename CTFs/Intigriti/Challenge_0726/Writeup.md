@@ -7,14 +7,14 @@
 
 ---
 
-## 📌 Executive Summary
+##  Executive Summary
 In this monthly Intigriti challenge, participants are tasked with exploring **Registry Observatory**, a secure compatibility assessment tool that generates signed compatibility reports for software packages. The primary objective is to bypass namespace trust boundaries to retrieve a protected system report containing the flag—without altering registry data or performing infrastructure attacks.
 
 By uncovering a hidden system package (`@core/security-notes`) through API ledger enumeration and identifying a **JSON Duplicate Key Parsing Inconsistency** across microservice endpoints, we successfully bypassed cryptographic signature authorization checks. This allowed us to forge an approved manifest and extract the secret flag from the internal system report.
 
 ---
 
-## 🔍 1. Reconnaissance & Application Overview
+## 1. Reconnaissance & Application Overview
 
 ### Application Architecture & Workspace
 Upon navigating to the application and authenticating, we are presented with our **Registry Observatory Workspace**. The platform isolates user activities by assigning each account an exclusively owned **Private Namespace** (e.g., `@onevily-8446a555`), complete with default sample packages (`compat-sample`, `hello-world`, and `legacy-adapter`).
@@ -33,7 +33,7 @@ The core mechanics of the platform revolve around the **Manifest Studio**, where
 
 ---
 
-## 🧩 2. Hunting the Target: The Observatory Archive Clues
+## 2. Hunting the Target: The Observatory Archive Clues
 
 To capture the flag, we needed to discover what hidden or restricted software packages existed inside the registry. We turned our attention to the **Observatory Archive** section, which divides registry historical data into three distinct tabs backed by specific API ledgers:
 
@@ -66,7 +66,7 @@ This explicit access rejection confirmed that `@core/security-notes` existed and
 
 ---
 
-## 🚧 3. The Trust Boundary & Authorization Blocks
+## 3. The Trust Boundary & Authorization Blocks
 
 Our next objective was to force the platform to generate a readable preflight report for `@core/security-notes`. However, attempting to sign a manifest directly targeting `"scope": "core"` via the Manifest Studio failed immediately:
 ```json
@@ -77,7 +77,7 @@ The signing endpoint (`/api/manifests/sign`) enforces a strict authorization tru
 
 ---
 
-## 💥 4. Vulnerability Discovery: TOCTOU via JSON Duplicate Keys
+## 4. Vulnerability Discovery: TOCTOU via JSON Duplicate Keys
 
 ### Understanding RFC 8259 & Parser Confusion
 Under the canonical JSON specification (*RFC 8259*), the operational behavior when an object contains duplicate keys (e.g., two identical `"package"` properties) is **undefined**. Consequently, different software libraries and microservice runtimes handle duplicate keys differently:
@@ -92,7 +92,7 @@ By examining how the Manifest Signing and Publication Execution services handle 
 
 ---
 
-## 🛠️ 5. Step-by-Step Exploitation in Burp Suite
+## 5. Step-by-Step Exploitation in Burp Suite
 
 ### Step 1: Authentication & Session Setup
 We authenticated via `POST /api/login` using our registered account credentials (*note: insert your own registered challenge credentials here*) to obtain our valid session cookie (`cy_session`), and captured our required `X-Csrf-Token` header value from `/api/me`.
@@ -208,7 +208,7 @@ INTIGRITI{019f8700-4613-74fb-923e-781903e4bee9}
 
 ---
 
-## 💻 6. Automated Python Exploit Script
+## 6. Automated Python Exploit Script
 To reliably demonstrate and reproduce this vulnerability without manual Burp Suite intervention, I developed an automated Python 3 proof-of-concept exploit:
 
 ```python
@@ -285,7 +285,7 @@ print("="*55)
 
 ---
 
-## 🛡️ 7. Remediations & Real-World Lessons
+## 7. Remediations & Real-World Lessons
 
 ### Why Does This Happen in Real-World Software?
 This parsing architecture discrepancy is reminiscent of famous production vulnerabilities such as **CVE-2017-12635 (Apache CouchDB)**, where dual Erlang JSON parsing libraries evaluated duplicate keys differently, allowing network attackers to self-assign super-administrator privileges. 
@@ -299,7 +299,7 @@ In modern cloud-native architectures, this vulnerability class often surfaces wh
 
 ---
 
-### 💡 Conclusion & Acknowledgements
+### Conclusion & Acknowledgements
 Thank you to **Intigriti** and **zerodaysbooks** for constructing an insightful, polished, and realistic API application logic challenge! Examining microservice parsing discrepancies and evaluating trust boundary behaviors across multi-stage signature workflows is an essential methodology for real-world application security research and bug bounty hunting.
 
 Happy Hacking! <3
