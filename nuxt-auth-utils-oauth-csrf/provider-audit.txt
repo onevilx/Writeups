@@ -1,0 +1,53 @@
+nuxt-auth-utils OAuth provider state-validation audit (source: main branch)
+Generated 2026-08-03
+
+PROVIDER           handleState  stateCheck  VERDICT
+-------------------------------------------------------------
+apple              0            0           VULNERABLE (no state check)
+atlassian          0            0           VULNERABLE (no state check)
+auth0              0            0           VULNERABLE (no state check)
+authentik          0            0           VULNERABLE (no state check)
+azureb2c           2            1           protected
+battledotnet       0            0           VULNERABLE (no state check)
+box                2            1           protected
+cognito            0            0           VULNERABLE (no state check)
+discord            0            0           VULNERABLE (no state check)
+dropbox            0            0           VULNERABLE (no state check)
+facebook           0            0           VULNERABLE (no state check)
+gitea              0            0           VULNERABLE (no state check)
+github             2            1           protected
+gitlab             0            0           VULNERABLE (no state check)
+google             0            0           VULNERABLE (no state check)
+heroku             2            1           protected
+hubspot            0            0           VULNERABLE (no state check)
+instagram          0            0           VULNERABLE (no state check)
+keycloak           0            0           VULNERABLE (no state check)
+kick               0            0           VULNERABLE (no state check)
+line               0            0           VULNERABLE (no state check)
+linear             0            0           VULNERABLE (no state check)
+linkedin           0            0           VULNERABLE (no state check)
+livechat           0            0           VULNERABLE (no state check)
+microsoft          0            0           VULNERABLE (no state check)
+oidc               2            1           protected
+okta               2            1           protected
+ory                2            1           protected
+osu                2            1           protected
+paypal             0            0           VULNERABLE (no state check)
+polar              0            0           VULNERABLE (no state check)
+riotgames          2            1           protected
+roblox             0            0           VULNERABLE (no state check)
+salesforce         2            1           protected
+seznam             0            0           VULNERABLE (no state check)
+shopifyCustomer    2            0           VULNERABLE (no state check)
+slack              2            1           protected
+spotify            0            0           VULNERABLE (no state check)
+steam              0            0           VULNERABLE (no state check)
+strava             0            0           VULNERABLE (no state check)
+tiktok             0            0           VULNERABLE (no state check)
+twitch             0            0           VULNERABLE (no state check)
+vk                 0            0           VULNERABLE (no state check)
+workos             0            0           VULNERABLE (no state check)
+x                  2            1           protected
+xsuaa              0            0           VULNERABLE (no state check)
+yandex             0            0           VULNERABLE (no state check)
+zitadel            2            1           protected

@@ -1,0 +1,84 @@
+Hi Yusuke,
+
+I'm reporting a security issue privately in @hono/oauth-providers (honojs/middleware),
+since the repo doesn't have a SECURITY.md or GitHub private vulnerability reporting
+enabled. Please let me know if you'd prefer a different channel.
+
+SUMMARY
+
+@hono/oauth-providers generates the OAuth 2.0 state parameter (the anti-CSRF token)
+with Math.random(), a non-cryptographic PRNG. The X/Twitter provider also generates
+its PKCE code_verifier with Math.random().
+
+This is separate from your recent advisory GHSA-fm3f-ch8h-qw8q ("state check fails
+open on omitted state", fixed in 0.8.6), which explicitly scoped itself to the
+omission of the state parameter and noted it does not concern weak randomness. This
+report is about the randomness of the generated values, which is still present in
+0.8.6.
+
+AFFECTED CODE
+
+src/utils/getRandomState.ts (used by all providers):
+    const rand = () => Math.random().toString(36).substr(2)
+    export function getRandomState() { return rand()-rand()-rand() }
+
+src/utils/getCodeChallenge.ts (X/Twitter provider, PKCE code_verifier):
+    const length = Math.floor(Math.random() * (128 - 43 + 1)) + 43
+    ... characters.charAt(Math.floor(Math.random() * characters.length)) ...
+
+Confirmed present in the shipped 0.8.6 artifact (dist/objectToQuery-*.mjs,
+dist/x/index.mjs). Affected providers: google, github, discord, facebook, twitch,
+x, linkedin, msentra.
+
+WHY THIS MATTERS
+
+- The OAuth state parameter is the CSRF token (RFC 6749 section 10.12) and must be
+  unpredictable. V8's Math.random() is xorshift128+, not a CSPRNG: its 128-bit
+  state is recoverable from a few observed outputs, after which all tokens are
+  deterministic. Because it's a single per-isolate stream shared across requests,
+  and each OAuth initiation leaks a fresh state in the redirect URL, an attacker
+  can sample the stream that also produces other users' state values, enabling
+  login CSRF / forced account linking, the exact attack the state check exists to
+  prevent.
+
+- The PKCE code_verifier MUST be generated with a CSPRNG (RFC 7636 section 7.1).
+  Using Math.random() is a direct violation and weakens PKCE's protection against
+  authorization-code interception.
+
+Severity I'd estimate as Moderate (CVSS ~4.2:
+CVSS:3.1/AV:N/AC:H/PR:N/UI:R/S:U/C:L/I:L/A:N). The weakness (CWE-338) is
+unconditional; full CSRF exploitation is intricate (RNG-state recovery plus
+timing), but the PKCE case is a clear-cut spec violation on its own.
+
+SUGGESTED FIX
+
+    export function getRandomState() {
+      return crypto.randomUUID() + crypto.randomUUID()
+    }
+    function generateRandomString() {
+      const bytes = crypto.getRandomValues(new Uint8Array(64))
+      return base64URLEncode(String.fromCharCode(...bytes))
+    }
+
+crypto.getRandomValues / crypto.randomUUID are available on all of the library's
+runtime targets (Workers, Deno, Bun, Node 18+).
+
+PROOF OF CONCEPT
+
+Attached: poc_weak_state.mjs. It reproduces getRandomState() and, using V8's exact
+xorshift128+, shows the token stream is fully deterministic given the recoverable
+PRNG state. (It does not reproduce end-to-end live state recovery, which is a
+documented SMT-based technique; the defect is established from the source, and that
+step is cited.)
+
+MINOR SECONDARY NOTE
+
+The X provider sets the state and code-verifier cookies without the Secure attribute
+(commented out in xAuth.ts), allowing transmission over plaintext HTTP.
+
+Would you be willing to request a CVE ID via GitHub when you publish the advisory
+for this? Happy to provide any additional detail needed. I'll hold off on any public
+disclosure until a fix is released.
+
+Thanks for your work on Hono,
+[your name / handle]

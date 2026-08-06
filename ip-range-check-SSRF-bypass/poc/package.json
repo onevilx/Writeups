@@ -1,0 +1,6 @@
+{
+  "name": "ip-range-check-ssrf-poc",
+  "private": true,
+  "type": "module",
+  "dependencies": { "ip-range-check": "0.2.0" }
+}

