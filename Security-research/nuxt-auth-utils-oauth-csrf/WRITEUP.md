@@ -106,6 +106,8 @@ GITHUB  provider: {"outcome":"onError","message":"Github login failed: state mis
   => Correctly REJECTED (state mismatch).   [control]
 ```
 
+![PoC output — Google accepts the forged callback, GitHub rejects it](./fullpoc.png)
+
 The differential is the actual proof: the identical forged request is **accepted** by Google's real handler and **rejected** by GitHub's real handler — running the library's own code, not a description of what it should do. (The OAuth provider itself is mocked, so it isn't a real Google authorization code; in a live attack the attacker would supply a genuine one bound to their own account. What the PoC demonstrates — the missing check itself — is the vulnerability.)
 
 ## Reporting it
