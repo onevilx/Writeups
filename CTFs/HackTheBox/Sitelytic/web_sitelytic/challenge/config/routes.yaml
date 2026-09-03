@@ -1,0 +1,27 @@
+index:
+   path: /
+   controller: App\Controller\DefaultController::index
+listService:
+   path: /api/service/list
+   controller: App\Controller\DefaultController::listService
+subscribe:
+   path: /subscribe
+   controller: App\Controller\DefaultController::subscribe
+loginView:
+   path: /login
+   controller: App\Controller\DefaultController::loginView
+login:
+   path: /admin/login
+   controller: App\Controller\LoginController::login
+adminIndex:
+   path: /admin/
+   controller: App\Controller\AdminController::adminIndex
+checkService:
+   path: /api/service/check
+   controller: App\Controller\AdminController::checkService
+saveService:
+   path: /api/service/save
+   controller: App\Controller\AdminController::saveService
+logout:
+   path: /logout
+   controller: App\Controller\AdminController::logout

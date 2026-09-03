@@ -1,0 +1,31 @@
+body {
+    background: #002b36;
+  }
+  
+  .list-group-item {
+    border-color: #ddd;
+  }
+
+  .navbar-dark {
+    color: #fff !important;
+    background-color: #073642 !important;
+}
+
+.sb2 {
+  height: 45px;
+  padding-right: 10px;
+}
+
+
+
+#globalToast {
+    display: none;
+    position: fixed;
+    top: 60px;
+    right: 10px;
+	min-width: 350px;
+	padding: 8px;
+   	color: white;
+	border-radius: 5px;
+    background: #0b6175;
+}

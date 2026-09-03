@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>Sitelytic | Status Board</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="icon" href="/static/images/logo.png" />
+	<link rel="stylesheet" type="text/css" href="/static/css/bootstrap.css">
+	<link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.css">
+    <link rel="stylesheet" type="text/css" href="/static/css/index.css">
+</head>
+<body>
+
+
+<nav class="navbar navbar-dark bg-dark">
+  <div class="container-fluid">
+   <a class="navbar-brand" href="#"><img src="/static/images/logo.png" class="sb2"> <span class="sb3">Sitelytic</span></a>
+   
+    <ul class="navbar-nav ml-auto d-flex">
+      <li class="nav-item active">
+        <a class="nav-link" href="/login">Admin</a>
+      </li>
+    </ul>
+ </div>
+</nav>
+
+
+<main id="main-container">
+ <div class="hero-static">
+  <div class="content content-full">
+   <div class="px-3 py-5">
+    <div class="mb-5 text-center">
+
+     <p class="text-uppercase font-w700 font-size-sm text-white">Application Status Page</p>
+    </div>
+    <div class="row no-gutters d-flex justify-content-center">
+     <div class="col-md-6 col-xl-4">
+      <div class="d-flex justify-content-between">
+       <button class="btn btn-outline-success btn-hero-sm btn-hero-success" data-toggle="modal" data-target="#SubModal">
+         <i class="fa fa-rss"></i> <span class="d-none d-sm-inline-block ml-1">Subscribe</span>
+        </button>
+      </div>
+      <div class="stats-longcards">
+
+      </div>
+      <ul class="list-group push stats-statcards">
+      
+      </ul>
+     </div>
+    </div>
+   </div>
+  </div>
+ </div>
+</main>
+<div class="toast align-items-center" role="alert" aria-live="assertive" aria-atomic="true" id="globalToast">
+    <div class="d-flex">
+        <div class="toast-body" id="globalToastMsg">
+        </div>
+    </div>
+</div>
+<!-- Modal -->
+<div class="modal fade" id="SubModal" tabindex="-1" role="dialog" aria-labelledby="SubModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="SubModalLabel">Subscribe for notifications</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <p>Subscribe to get notified whenever our services are down or under maintenance.</p>
+          <div class="form-group">
+            <label for="exampleInputEmail1">Email address</label>
+            <input type="email" class="form-control" id="email" aria-describedby="emailHelp" placeholder="Enter email">
+            <small id="emailHelp" class="form-text text-muted">We'll never share your email with anyone else.</small>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+          <button type="button" class="btn btn-primary" data-dismiss="modal" id="subscribeBtn">Subscribe</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script src="/static/js/jquery-3.6.0.min.js"></script>
+  <script src="/static/js/bootstrap.min.js"></script>
+  <script src="/static/js/index.js"></script>
+
+</body>
+</html>
